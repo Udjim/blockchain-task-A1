@@ -4,10 +4,9 @@ import "@openzeppelin/contracts-upgradeable/utils/cryptography/SignatureCheckerU
 import "./TransferHelper.sol";
 
 contract RoleContract is OwnableUpgradeable {
-
     // =================================
-	// Storage
-	// =================================
+    // Storage
+    // =================================
 
     /// @dev Public key of signer
     address public publicKey;
@@ -41,8 +40,8 @@ contract RoleContract is OwnableUpgradeable {
     mapping(address => uint256) public individualNonce;
 
     // =================================
-	// Modifier
-	// =================================
+    // Modifier
+    // =================================
 
     modifier isRoleExist(uint256 _role) {
         require(rolesList[_role].isExist, "RNE");
@@ -55,8 +54,8 @@ contract RoleContract is OwnableUpgradeable {
     }
 
     // =================================
-	// Internal functions
-	// =================================
+    // Internal functions
+    // =================================
 
     function verifySignedAddressForRoles(
         uint256 _role,
@@ -65,14 +64,26 @@ contract RoleContract is OwnableUpgradeable {
         bytes32 _r,
         bytes32 _s
     ) internal view returns (bool) {
-        bytes32 prefixedHashMessage = keccak256(abi.encodePacked("\x19Ethereum Signed Message:\n32", keccak256(abi.encodePacked(msg.sender, individualNonce[msg.sender], _role, _days))));
+        bytes32 prefixedHashMessage = keccak256(
+            abi.encodePacked(
+                "\x19Ethereum Signed Message:\n32",
+                keccak256(
+                    abi.encodePacked(
+                        msg.sender,
+                        individualNonce[msg.sender],
+                        _role,
+                        _days
+                    )
+                )
+            )
+        );
         address signer = ecrecover(prefixedHashMessage, _v, _r, _s);
         return signer == publicKey;
     }
 
     // =================================
-	// Get role functions
-	// =================================
+    // Get role functions
+    // =================================
 
     /// @dev Get role of user
     function getRole(address _user) public view returns (Roles memory) {
@@ -94,36 +105,61 @@ contract RoleContract is OwnableUpgradeable {
     }
 
     /// @dev Get max and min amounts of user role
-    function getAmounts(address _user) external view returns (uint256, uint256) {
+    function getAmounts(
+        address _user
+    ) external view returns (uint256, uint256) {
         return (getRole(_user).minAmount, getRole(_user).maxAmount);
     }
 
     // =================================
-	// Set functions
-	// =================================
+    // Set functions
+    // =================================
 
     /// @dev sets role for user after off chain payment
-    function offChainPay(uint256 _role, uint256 _days, uint8 _v, bytes32 _r, bytes32 _s) external isRoleExist(_role) {
+    function offChainPay(
+        uint256 _role,
+        uint256 _days,
+        uint8 _v,
+        bytes32 _r,
+        bytes32 _s
+    ) external isRoleExist(_role) {
         require(verifySignedAddressForRoles(_role, _days, _v, _r, _s), "WS");
         individualNonce[msg.sender]++;
 
-        if (userRoles[msg.sender].deadline < block.timestamp && userRoles[msg.sender].role != _role) {
-            userRoles[msg.sender] = userRole(_role, (block.timestamp + (_days * 1 days)));
+        if (
+            userRoles[msg.sender].deadline < block.timestamp &&
+            userRoles[msg.sender].role != _role
+        ) {
+            userRoles[msg.sender] = userRole(
+                _role,
+                (block.timestamp + (_days * 1 days))
+            );
         } else if (userRoles[msg.sender].deadline > block.timestamp) {
             userRoles[msg.sender].deadline += (_days * 1 days);
         } else {
-            userRoles[msg.sender].deadline = (block.timestamp + (_days * 1 days));
+            userRoles[msg.sender].deadline = (block.timestamp +
+                (_days * 1 days));
         }
     }
 
     // =================================
-	// Admin functions
-	// =================================
+    // Admin functions
+    // =================================
 
     /// @dev sets role for user
-    function giveRole(address _user, uint256 _role, uint256 _days) external onlyManager isRoleExist(_role) {
-        if (userRoles[msg.sender].deadline < block.timestamp && userRoles[_user].role != _role) {
-            userRoles[_user] = userRole(_role, (block.timestamp + (_days * 1 days)));
+    function giveRole(
+        address _user,
+        uint256 _role,
+        uint256 _days
+    ) external onlyManager isRoleExist(_role) {
+        if (
+            userRoles[msg.sender].deadline < block.timestamp &&
+            userRoles[_user].role != _role
+        ) {
+            userRoles[_user] = userRole(
+                _role,
+                (block.timestamp + (_days * 1 days))
+            );
         } else if (userRoles[_user].deadline > block.timestamp) {
             userRoles[_user].deadline += (_days * 1 days);
         } else {
@@ -146,7 +182,11 @@ contract RoleContract is OwnableUpgradeable {
     }
 
     /// @dev makes new role
-    function makeNewRole(uint256 _role, uint256 _maxAmount, uint256 _minAmount) external onlyManager {
+    function makeNewRole(
+        uint256 _role,
+        uint256 _maxAmount,
+        uint256 _minAmount
+    ) external onlyManager {
         require(_maxAmount > _minAmount, "MA");
         rolesList[_role] = Roles(_role, true, _maxAmount, _minAmount);
     }
@@ -157,18 +197,21 @@ contract RoleContract is OwnableUpgradeable {
     }
 
     // =================================
-	// Constructor
-	// =================================
+    // Constructor
+    // =================================
 
-    function initialize(address _publicKey, address _manager, Roles[] calldata rolesInit) public initializer {
+    function initialize(
+        address _publicKey,
+        address _manager,
+        Roles[] calldata rolesInit
+    ) public initializer {
         __Ownable_init();
 
         publicKey = _publicKey;
         manager = _manager;
 
-        for(uint256 i = 0; i < rolesInit.length; i++) {
+        for (uint256 i = 0; i < rolesInit.length; i++) {
             rolesList[rolesInit[i].roleNumber] = rolesInit[i];
         }
     }
-
 }
