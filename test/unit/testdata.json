@@ -1,6 +1,6 @@
 {
     "INITIAL_SUPPLY_TKN": 2000,
-    "INITIAL_SUPPLY_LPT": 2000,
+    "INITIAL_SUPPLY_LPT": 200000,
 
     "tokenArgs": ["Token", "TKN", 18],
 
@@ -24,7 +24,7 @@
             "minAmount": 10,
             "maxAmount": 1000,
             "roleFee": 20,
-            "maxAmountToSellForRole": 1100
+            "maxAmountToSellForRole": 110000
         },
         {
             "roleNumber": 2,
@@ -32,14 +32,14 @@
             "minAmount": 10,
             "maxAmount": 500,
             "roleFee": 10,
-            "maxAmountToSellForRole": 500
+            "maxAmountToSellForRole": 50000
         }
     ],
 
     "investPoolArgs": {
         "baseFee": 10,
         "price": 1,
-        "maxAmountToSell": 1500
+        "maxAmountToSell": 150000
     }
 
 

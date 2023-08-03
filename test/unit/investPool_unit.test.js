@@ -204,15 +204,15 @@ describe("Testing the functions of the InvestPool.sol", () => {
 
     /// Buy LP Token ///
 
-    tx = await investPool.connect(user1).buyLP(tokens(100));
+    tx = await investPool.connect(user1).buyLP(tokens(10000));
     await tx.wait();
 
     /// Check amount of LP Tokens ///
 
     let userLPTokenBalance = await lpToken.balanceOf(user1.address);
-    expect(userLPTokenBalance).to.equal(tokens(100));
+    expect(userLPTokenBalance).to.equal(tokens(10000));
     let poolLPTokenBalance = await lpToken.balanceOf(investPool.address);
-    expect(poolLPTokenBalance).to.equal(tokens(1900));
+    expect(poolLPTokenBalance).to.equal(tokens(190000));
 
     /// Check amount of Tokens ///
 
@@ -236,62 +236,62 @@ describe("Testing the functions of the InvestPool.sol", () => {
 
     /// Сhecking second purchase ///
 
-    tx = await investPool.connect(user1).buyLP(tokens(100));
+    tx = await investPool.connect(user1).buyLP(tokens(10000));
     await tx.wait();
 
     userLPTokenBalance = await lpToken.balanceOf(user1.address);
-    expect(userLPTokenBalance).to.equal(tokens(200));
+    expect(userLPTokenBalance).to.equal(tokens(20000));
     poolLPTokenBalance = await lpToken.balanceOf(investPool.address);
-    expect(poolLPTokenBalance).to.equal(tokens(1800));
+    expect(poolLPTokenBalance).to.equal(tokens(180000));
   });
 
   it("Check minAmount and maxAmount for role", async () => {
     await expect(
-      investPool.connect(user1).buyLP(tokens(1100))
+      investPool.connect(user1).buyLP(tokens(110000))
     ).to.be.revertedWith("KP");
 
-    await expect(investPool.connect(user1).buyLP(tokens(7))).to.be.revertedWith(
-      "IA"
-    );
+    await expect(
+      investPool.connect(user1).buyLP(tokens(700))
+    ).to.be.revertedWith("IA");
 
-    tx = await investPool.connect(user1).buyLP(tokens(1000));
+    tx = await investPool.connect(user1).buyLP(tokens(100000));
     await tx.wait();
 
-    await expect(investPool.connect(user1).buyLP(tokens(1))).to.be.revertedWith(
-      "KP"
-    );
+    await expect(
+      investPool.connect(user1).buyLP(tokens(100))
+    ).to.be.revertedWith("KP");
   });
 
   it("Check maxAmountToSellForRole for role", async () => {
-    tx = await investPool.connect(user1).buyLP(tokens(1000));
+    tx = await investPool.connect(user1).buyLP(tokens(100000));
     await tx.wait();
-    tx = await investPool.connect(user2).buyLP(tokens(100));
+    tx = await investPool.connect(user2).buyLP(tokens(10000));
     await tx.wait();
-    await expect(investPool.connect(user2).buyLP(tokens(1))).to.be.revertedWith(
-      "RR"
-    );
+    await expect(
+      investPool.connect(user2).buyLP(tokens(100))
+    ).to.be.revertedWith("RR");
   });
 
   it("Check maxAmountToSell", async () => {
-    tx = await investPool.connect(user1).buyLP(tokens(1000));
+    tx = await investPool.connect(user1).buyLP(tokens(100000));
     await tx.wait();
-    tx = await investPool.connect(user2).buyLP(tokens(100));
+    tx = await investPool.connect(user2).buyLP(tokens(10000));
     await tx.wait();
-    tx = await investPool.connect(user3).buyLP(tokens(400));
+    tx = await investPool.connect(user3).buyLP(tokens(40000));
     await tx.wait();
-    await expect(investPool.connect(user3).buyLP(tokens(1))).to.be.revertedWith(
-      "LT"
-    );
+    await expect(
+      investPool.connect(user3).buyLP(tokens(100))
+    ).to.be.revertedWith("LT");
   });
 
   it("Check if user1 has no role", async () => {
     await expect(
-      investPool.connect(user4).buyLP(tokens(20))
+      investPool.connect(user4).buyLP(tokens(2000))
     ).to.be.revertedWith("KP");
   });
 
   it("Check deadline for role", async () => {
-    tx = await investPool.connect(user1).buyLP(tokens(100));
+    tx = await investPool.connect(user1).buyLP(tokens(10000));
     await tx.wait();
 
     latestBlock = await ethers.provider.getBlock("latest");
@@ -302,7 +302,7 @@ describe("Testing the functions of the InvestPool.sol", () => {
     latestBlock = await ethers.provider.getBlock("latest");
 
     await expect(
-      investPool.connect(user1).buyLP(tokens(100))
+      investPool.connect(user1).buyLP(tokens(10000))
     ).to.be.revertedWith("TE");
     await tx.wait();
   });

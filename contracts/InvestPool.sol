@@ -167,7 +167,7 @@ contract InvestPool is Ownable {
         uint8 lpTokenDecimals = IERC20Metadata(LPtoken).decimals();
         uint256 paymentTokenAmountWithoutFee = (lpTokenAmount *
             price *
-            10 ** (paymentTokenDecimals)) / 10 ** lpTokenDecimals;
+            10 ** (paymentTokenDecimals - 2)) / 10 ** lpTokenDecimals;
 
         uint256 paymentTokenAmount = (paymentTokenAmountWithoutFee *
             (1000 + (userRole.roleFee == 0 ? baseFee : userRole.roleFee))) /
