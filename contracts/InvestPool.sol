@@ -3,9 +3,9 @@ import "@openzeppelin/contracts/access/Ownable.sol";
 import "@openzeppelin/contracts/token/ERC20/extensions/IERC20Metadata.sol";
 import "./interfaces/IRoleContract.sol";
 import "./TransferHelper.sol";
+import "hardhat/console.sol";
 
 contract InvestPool is Ownable {
-
     // =================================
     // Storage
     // =================================
@@ -61,7 +61,13 @@ contract InvestPool is Ownable {
     // Events
     // =================================
 
-    event RoleSettingsChanged(uint256 roleNumber, uint256 startTime, uint256 deadline, uint256 roleFee, uint256 maxAmountToSellForRole);
+    event RoleSettingsChanged(
+        uint256 roleNumber,
+        uint256 startTime,
+        uint256 deadline,
+        uint256 roleFee,
+        uint256 maxAmountToSellForRole
+    );
     event Purchase(address user, uint256 amount);
 
     // =================================
@@ -99,22 +105,47 @@ contract InvestPool is Ownable {
     // Functions
     // =================================
 
-   function buy(uint256 paymentTokenAmount) external {
+    function buy(uint256 paymentTokenAmount) external {
         uint256 userRoleNum = rolesContract.getRoleNumber(msg.sender);
-        (uint256 minAmountForRole, uint256 maxAmountForRole) = rolesContract.getAmounts(msg.sender);
+        (uint256 minAmountForRole, uint256 maxAmountForRole) = rolesContract
+            .getAmounts(msg.sender);
         RoleSettings storage userRole = roleSettings[userRoleNum];
 
-        uint256 paymentTokenAmountWithoutFee = paymentTokenAmount * (1000 - (userRole.roleFee == 0 ? baseFee : userRole.roleFee)) / 1000;
+        uint256 paymentTokenAmountWithoutFee = (paymentTokenAmount *
+            (1000 - (userRole.roleFee == 0 ? baseFee : userRole.roleFee))) /
+            1000;
         uint8 lpTokenDecimals = IERC20Metadata(LPtoken).decimals();
-        uint256 lpTokenAmount = paymentTokenAmountWithoutFee * 10**lpTokenDecimals / (price * 10**(paymentTokenDecimals - 2));
-        
-        require(paymentTokenAmountWithoutFee + alreadyBought[msg.sender] <= maxAmountForRole, "KP");
-        require(paymentTokenAmountWithoutFee + alreadyBought[msg.sender] >= minAmountForRole, "IA");
-        require(block.timestamp >= userRole.startTime && block.timestamp <= userRole.deadline, "TE");
-        require(userRole.soldAmountForThisRole + lpTokenAmount <= userRole.maxAmountToSellForRole, "RR");
+        uint256 lpTokenAmount = (paymentTokenAmountWithoutFee *
+            10 ** lpTokenDecimals) / (price * 10 ** (paymentTokenDecimals - 2));
+
+        require(
+            paymentTokenAmountWithoutFee + alreadyBought[msg.sender] <=
+                maxAmountForRole,
+            "KP"
+        );
+        require(
+            paymentTokenAmountWithoutFee + alreadyBought[msg.sender] >=
+                minAmountForRole,
+            "IA"
+        );
+        require(
+            block.timestamp >= userRole.startTime &&
+                block.timestamp <= userRole.deadline,
+            "TE"
+        );
+        require(
+            userRole.soldAmountForThisRole + lpTokenAmount <=
+                userRole.maxAmountToSellForRole,
+            "RR"
+        );
         require(alreadySold + lpTokenAmount <= maxAmountToSell, "LT");
 
-        TransferHelper.safeTransferFrom(paymentToken, msg.sender, fundrisingWallet, paymentTokenAmount);
+        TransferHelper.safeTransferFrom(
+            paymentToken,
+            msg.sender,
+            fundrisingWallet,
+            paymentTokenAmount
+        );
 
         alreadyBought[msg.sender] += paymentTokenAmountWithoutFee;
         userRole.soldAmountForThisRole += lpTokenAmount;
@@ -129,20 +160,46 @@ contract InvestPool is Ownable {
 
     function buyLP(uint256 lpTokenAmount) external {
         uint256 userRoleNum = rolesContract.getRoleNumber(msg.sender);
-        (uint256 minAmountForRole, uint256 maxAmountForRole) = rolesContract.getAmounts(msg.sender);
+        (uint256 minAmountForRole, uint256 maxAmountForRole) = rolesContract
+            .getAmounts(msg.sender);
         RoleSettings storage userRole = roleSettings[userRoleNum];
-        
+
         uint8 lpTokenDecimals = IERC20Metadata(LPtoken).decimals();
-        uint256 paymentTokenAmountWithoutFee = lpTokenAmount * price * 10**(paymentTokenDecimals - 2) / 10**lpTokenDecimals;
-        uint256 paymentTokenAmount = paymentTokenAmountWithoutFee * (1000 + (userRole.roleFee == 0 ? baseFee : userRole.roleFee)) / 1000;
-  
-        require(paymentTokenAmountWithoutFee + alreadyBought[msg.sender] <= maxAmountForRole, "KP");
-        require(paymentTokenAmountWithoutFee + alreadyBought[msg.sender] >= minAmountForRole, "IA");
-        require(block.timestamp >= userRole.startTime && block.timestamp <= userRole.deadline, "TE");
-        require(userRole.soldAmountForThisRole + lpTokenAmount <= userRole.maxAmountToSellForRole, "RR");
+        uint256 paymentTokenAmountWithoutFee = (lpTokenAmount *
+            price *
+            10 ** (paymentTokenDecimals - 2)) / 10 ** lpTokenDecimals;
+
+        uint256 paymentTokenAmount = (paymentTokenAmountWithoutFee *
+            (1000 + (userRole.roleFee == 0 ? baseFee : userRole.roleFee))) /
+            1000;
+        require(
+            block.timestamp >= userRole.startTime &&
+                block.timestamp <= userRole.deadline,
+            "TE"
+        );
+        require(
+            paymentTokenAmountWithoutFee + alreadyBought[msg.sender] <=
+                maxAmountForRole,
+            "KP"
+        );
+        require(
+            paymentTokenAmountWithoutFee + alreadyBought[msg.sender] >=
+                minAmountForRole,
+            "IA"
+        );
+        require(
+            userRole.soldAmountForThisRole + lpTokenAmount <=
+                userRole.maxAmountToSellForRole,
+            "RR"
+        );
         require(alreadySold + lpTokenAmount <= maxAmountToSell, "LT");
 
-        TransferHelper.safeTransferFrom(paymentToken, msg.sender, fundrisingWallet, paymentTokenAmount);
+        TransferHelper.safeTransferFrom(
+            paymentToken,
+            msg.sender,
+            fundrisingWallet,
+            paymentTokenAmount
+        );
 
         alreadyBought[msg.sender] += paymentTokenAmountWithoutFee;
         userRole.soldAmountForThisRole += lpTokenAmount;
@@ -168,11 +225,18 @@ contract InvestPool is Ownable {
     ) public onlyManager {
         for (uint256 i = 0; i < _roleSettings.length; i++) {
             require(_roleSettings[i].roleFee <= MAX_FEE, "FTH");
-            
-            roleSettings[_roleSettings[i].roleNumber].startTime = _roleSettings[i].startTime;
-            roleSettings[_roleSettings[i].roleNumber].deadline = _roleSettings[i].deadline;
-            roleSettings[_roleSettings[i].roleNumber].roleFee = _roleSettings[i].roleFee;
-            roleSettings[_roleSettings[i].roleNumber].maxAmountToSellForRole = _roleSettings[i].maxAmountToSellForRole;
+
+            roleSettings[_roleSettings[i].roleNumber].startTime = _roleSettings[
+                i
+            ].startTime;
+            roleSettings[_roleSettings[i].roleNumber].deadline = _roleSettings[
+                i
+            ].deadline;
+            roleSettings[_roleSettings[i].roleNumber].roleFee = _roleSettings[i]
+                .roleFee;
+            roleSettings[_roleSettings[i].roleNumber]
+                .maxAmountToSellForRole = _roleSettings[i]
+                .maxAmountToSellForRole;
             emit RoleSettingsChanged(
                 _roleSettings[i].roleNumber,
                 _roleSettings[i].startTime,
@@ -186,13 +250,16 @@ contract InvestPool is Ownable {
     function setRoleSetting(
         RoleSettingsSetter memory _rolesSetting
     ) external onlyManager {
-        roleSettings[_rolesSetting.roleNumber].startTime = _rolesSetting.startTime;
-        roleSettings[_rolesSetting.roleNumber].deadline = _rolesSetting.deadline;
+        roleSettings[_rolesSetting.roleNumber].startTime = _rolesSetting
+            .startTime;
+        roleSettings[_rolesSetting.roleNumber].deadline = _rolesSetting
+            .deadline;
         roleSettings[_rolesSetting.roleNumber].roleFee = _rolesSetting.roleFee;
-        roleSettings[_rolesSetting.roleNumber].maxAmountToSellForRole = _rolesSetting.maxAmountToSellForRole;
+        roleSettings[_rolesSetting.roleNumber]
+            .maxAmountToSellForRole = _rolesSetting.maxAmountToSellForRole;
         emit RoleSettingsChanged(
             _rolesSetting.roleNumber,
-            _rolesSetting.startTime, 
+            _rolesSetting.startTime,
             _rolesSetting.deadline,
             _rolesSetting.roleFee,
             _rolesSetting.maxAmountToSellForRole
@@ -221,11 +288,19 @@ contract InvestPool is Ownable {
     }
 
     function depositLPtoken(uint256 _amount) external onlyManager {
-        TransferHelper.safeTransferFrom(LPtoken, msg.sender, address(this), _amount);
+        TransferHelper.safeTransferFrom(
+            LPtoken,
+            msg.sender,
+            address(this),
+            _amount
+        );
         totalLPDeposited += _amount;
     }
 
-    function withdrawLPtoken(address _to, uint256 _amount) external onlyManager {
+    function withdrawLPtoken(
+        address _to,
+        uint256 _amount
+    ) external onlyManager {
         TransferHelper.safeTransfer(LPtoken, _to, _amount);
         if (totalLPDeposited >= _amount) {
             totalLPDeposited -= _amount;
@@ -237,5 +312,4 @@ contract InvestPool is Ownable {
     function setManager(address _manager) external onlyOwner {
         manager = _manager;
     }
-
 }

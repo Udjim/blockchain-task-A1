@@ -1,0 +1,46 @@
+{
+    "INITIAL_SUPPLY_TKN": 2000,
+    "INITIAL_SUPPLY_LPT": 200000,
+
+    "tokenArgs": ["Token", "TKN", 18],
+
+    "lpTokenArgs": {
+        "name": "LP Token",
+        "symbol": "LPT"
+    },
+
+    "rolesInit": [
+        {
+            "roleNumber": 0,
+            "isExist": false,
+            "minAmount": 0,
+            "maxAmount": 0,
+            "roleFee": 0,
+            "maxAmountToSellForRole": 0
+        },
+        {
+            "roleNumber": 1,
+            "isExist": true,
+            "minAmount": 10,
+            "maxAmount": 1000,
+            "roleFee": 20,
+            "maxAmountToSellForRole": 110000
+        },
+        {
+            "roleNumber": 2,
+            "isExist": true,
+            "minAmount": 10,
+            "maxAmount": 500,
+            "roleFee": 10,
+            "maxAmountToSellForRole": 50000
+        }
+    ],
+
+    "investPoolArgs": {
+        "baseFee": 10,
+        "price": 1,
+        "maxAmountToSell": 150000
+    }
+
+
+}
