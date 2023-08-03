@@ -2,7 +2,7 @@
  * @type import('hardhat/config').HardhatUserConfig
  */
 
-require("@nomiclabs/hardhat-waffle");
+require("@nomicfoundation/hardhat-toolbox");
 require("@nomiclabs/hardhat-ethers");
 require("@nomiclabs/hardhat-truffle5");
 require("@nomiclabs/hardhat-etherscan");
@@ -23,15 +23,15 @@ module.exports = {
     defaultNetwork: "hardhat",
     networks: {
         hardhat: {},
-        custom: {
-            url: CUSTOM_RPC_URL,
-            accounts: [PRIVATE_KEY],
-            saveDeployments: true,
-        },
-        bnb: {
-           url: CUSTOM_RPC_URL,
-           accounts: [PRIVATE_KEY]
-        }
+        // custom: {
+        //     url: CUSTOM_RPC_URL,
+        //     accounts: [PRIVATE_KEY],
+        //     saveDeployments: true,
+        // },
+        // bnb: {
+        //    url: CUSTOM_RPC_URL,
+        //    accounts: [PRIVATE_KEY]
+        // }
     },
     etherscan: {
         apiKey: ETHERSCAN_API_KEY

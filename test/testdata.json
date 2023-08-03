@@ -1,0 +1,24 @@
+{
+  "paymentTokenName": "PaymentToken",
+  "paymentTokenSymbol": "PT",
+  "paymentTokenDecimals": 18,
+  "paymentTokenTotalValue": 50000,
+
+  "lpTokenName": "LPToken",
+  "lpTokenSymbol": "LP",
+  "lpTokenTotalValue": 50000,
+
+  "baseFee": 3,
+  "price": 1,
+  "maxAmountToSell": 5000,
+
+  "lpTokenAmountToBuy": 100,
+
+  "isExist": true,
+  "maxAmount1": 50000,
+  "minAmount1": 1,
+  "maxAmount2": 25000,
+  "minAmount2": 1,
+  "maxAmount3": 500,
+  "minAmount3": 1
+}
