@@ -5,6 +5,9 @@ const data = require("./testdata.json");
 function tokens(amount) {
   return ethers.utils.parseUnits(amount.toString(), "ether");
 }
+function usd(amount) {
+  return ethers.utils.parseUnits(amount.toString(), 6);
+}
 
 describe("Testing the functions of the InvestPool.sol", () => {
   let deployer,
@@ -24,7 +27,7 @@ describe("Testing the functions of the InvestPool.sol", () => {
     const provider = new ethers.providers.JsonRpcProvider(
       "http://127.0.0.1:8545"
     );
-    token = await ethers.deployContract("Token", data.tokenArgs, deployer);
+    token = await ethers.deployContract("realUsd", deployer);
     lpToken = await ethers.deployContract(
       "LPtoken",
       [data.lpTokenArgs.name, data.lpTokenArgs.symbol, deployer.address],
@@ -37,20 +40,20 @@ describe("Testing the functions of the InvestPool.sol", () => {
       {
         roleNumber: data.rolesInit[0].roleNumber,
         isExist: data.rolesInit[0].isExist,
-        minAmount: tokens(data.rolesInit[0].minAmount),
-        maxAmount: tokens(data.rolesInit[0].maxAmount),
+        minAmount: usd(data.rolesInit[0].minAmount),
+        maxAmount: usd(data.rolesInit[0].maxAmount),
       },
       {
         roleNumber: data.rolesInit[1].roleNumber,
         isExist: data.rolesInit[1].isExist,
-        minAmount: tokens(data.rolesInit[1].minAmount),
-        maxAmount: tokens(data.rolesInit[1].maxAmount),
+        minAmount: usd(data.rolesInit[1].minAmount),
+        maxAmount: usd(data.rolesInit[1].maxAmount),
       },
       {
         roleNumber: data.rolesInit[2].roleNumber,
         isExist: data.rolesInit[2].isExist,
-        minAmount: tokens(data.rolesInit[2].minAmount),
-        maxAmount: tokens(data.rolesInit[2].maxAmount),
+        minAmount: usd(data.rolesInit[2].minAmount),
+        maxAmount: usd(data.rolesInit[2].maxAmount),
       },
     ];
 
@@ -106,20 +109,20 @@ describe("Testing the functions of the InvestPool.sol", () => {
       deployer
     );
 
-    tx = await token.mint(deployer.address, tokens(data.INITIAL_SUPPLY_TKN));
+    tx = await token.mint(deployer.address, usd(data.INITIAL_SUPPLY_TKN));
     await tx.wait();
 
     const ownerBalance = await token.balanceOf(deployer.address);
     expect(await token.totalSupply()).to.equal(ownerBalance);
     expect(await token.balanceOf(deployer.address)).to.equal(
-      tokens(data.INITIAL_SUPPLY_TKN)
+      usd(data.INITIAL_SUPPLY_TKN)
     );
 
-    tx = await token.transfer(user1.address, tokens(1200));
+    tx = await token.transfer(user1.address, usd(1200));
     await tx.wait();
 
     const userTokenBalance = await token.balanceOf(user1.address);
-    expect(userTokenBalance).to.equal(tokens(1200));
+    expect(userTokenBalance).to.equal(usd(1200));
 
     tx = await lpToken.mint(
       investPool.address,
@@ -142,7 +145,7 @@ describe("Testing the functions of the InvestPool.sol", () => {
 
     /// Set approve for InvestPoll of user#1 ///
 
-    tx = await token.connect(user1).approve(investPool.address, tokens(1200));
+    tx = await token.connect(user1).approve(investPool.address, usd(1200));
     await tx.wait();
 
     /// Set role for user#2 ///
@@ -157,12 +160,12 @@ describe("Testing the functions of the InvestPool.sol", () => {
 
     /// Transfer tokens to user#2 ///
 
-    tx = await token.transfer(user2.address, tokens(300));
+    tx = await token.transfer(user2.address, usd(300));
     await tx.wait();
 
     /// Set approve for InvestPoll of user#2///
 
-    tx = await token.connect(user2).approve(investPool.address, tokens(300));
+    tx = await token.connect(user2).approve(investPool.address, usd(300));
     await tx.wait();
 
     /// Set role for user#3 ///
@@ -178,22 +181,22 @@ describe("Testing the functions of the InvestPool.sol", () => {
 
     /// Transfer tokens to user#3 ///
 
-    tx = await token.transfer(user3.address, tokens(450));
+    tx = await token.transfer(user3.address, usd(450));
     await tx.wait();
 
     /// Set approve for InvestPoll of user#3///
 
-    tx = await token.connect(user3).approve(investPool.address, tokens(450));
+    tx = await token.connect(user3).approve(investPool.address, usd(450));
     await tx.wait();
 
     /// Transfer tokens to user#4 ///
 
-    tx = await token.transfer(user4.address, tokens(50));
+    tx = await token.transfer(user4.address, usd(50));
     await tx.wait();
 
     /// Set approve for InvestPoll of user#4///
 
-    tx = await token.connect(user4).approve(investPool.address, tokens(50));
+    tx = await token.connect(user4).approve(investPool.address, usd(50));
     await tx.wait();
   });
 
@@ -218,8 +221,8 @@ describe("Testing the functions of the InvestPool.sol", () => {
 
     const userTokenBalance = await token.balanceOf(user1.address);
 
-    const expectUserTokenBalance = tokens(1200).sub(
-      tokens(100).add(tokens(100).mul(data.rolesInit[1].roleFee).div(1000))
+    const expectUserTokenBalance = usd(1200).sub(
+      usd(100).add(usd(100).mul(data.rolesInit[1].roleFee).div(1000))
     );
     expect(userTokenBalance).to.equal(expectUserTokenBalance);
 
@@ -229,7 +232,7 @@ describe("Testing the functions of the InvestPool.sol", () => {
     const ownerTokenBalanceAfter = await token.balanceOf(deployer.address);
 
     const expectOwnerTokenBalance = ownerTokenBalanceBefore.add(
-      tokens(100).add(tokens(100).mul(data.rolesInit[1].roleFee).div(1000))
+      usd(100).add(usd(100).mul(data.rolesInit[1].roleFee).div(1000))
     );
 
     expect(ownerTokenBalanceAfter).to.equal(expectOwnerTokenBalance);
