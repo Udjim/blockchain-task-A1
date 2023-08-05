@@ -1,0 +1,45 @@
+{
+    "OWNER": "0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266",
+    "PUBLIC_KEY": "0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266",
+    "MANAGER": "0x70997970C51812dc3A010C7d01b50e0d17dc79C8",
+    "FUNDRISING_WALLET": "0x3C44CdDdB6a900fa2b585dd299e03d12FA4293BC",
+
+    "LP_TOKEN": { "name": "LP Token", "symbol": "LPT" },
+
+    "INVEST_POOL": {
+        "baseFee": 50,
+        "price": 1000,
+        "maxAmountToSell": 9999,
+        "roleSettings": [
+            {
+                "roleNumber": 1,
+                "startTime": 1691217811,
+                "deadline": 1693878211,
+                "roleFee": 0,
+                "maxAmountToSellForRole": 5000
+            },
+            {
+                "roleNumber": 2,
+                "startTime": 1691217811,
+                "deadline": 1693878211,
+                "roleFee": 0,
+                "maxAmountToSellForRole": 5000
+            }
+        ]
+    },
+
+    "ROLES_INIT": [
+        {
+            "roleNumber": 1,
+            "isExist": true,
+            "maxAmount": 50000,
+            "minAmount": 1000
+        },
+        {
+            "roleNumber": 2,
+            "isExist": true,
+            "maxAmount": 50000,
+            "minAmount": 1000
+        }
+    ]
+}
